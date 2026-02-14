@@ -666,7 +666,11 @@
             renderForm();
             renderStepTabs();
             updateButtons();
-            window.scrollTo(0, 0);
+            // 滚动到步骤按钮区域
+            const stepTabs = document.getElementById('stepTabs');
+            if (stepTabs) {
+                stepTabs.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         }
         
         function prevStep() {
@@ -676,7 +680,11 @@
                 renderForm();
                 renderStepTabs();
                 updateButtons();
-                window.scrollTo(0, 0);
+                // 滚动到步骤按钮区域
+                const stepTabs = document.getElementById('stepTabs');
+                if (stepTabs) {
+                    stepTabs.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
             }
         }
         
@@ -687,7 +695,11 @@
                 renderForm();
                 renderStepTabs();
                 updateButtons();
-                window.scrollTo(0, 0);
+                // 滚动到步骤按钮区域
+                const stepTabs = document.getElementById('stepTabs');
+                if (stepTabs) {
+                    stepTabs.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
             } else {
                 generateReport();
             }
