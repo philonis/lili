@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>健康信息调查表</title>
+    <style>
+        :root {
+            --primary: #e8a87c;
+            --primary-dark: #d4956a;
+            --bg: #fdf8f4;
+            --card: #ffffff;
+            --text: #4a4a4a;
+            --text-light: #7a7a7a;
+            --border: #eee;
+            --success: #85b79c;
+            --warning: #f9c784;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 30px 0 20px;
+        }
+        
+        .header h1 {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+        
+        .header .subtitle {
+            font-size: 14px;
+            color: var(--text-light);
+            line-height: 1.8;
+            padding: 16px;
+            background: var(--card);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+        
+        .header .subtitle strong {
+            color: var(--primary-dark);
+        }
+        
+        .progress-bar {
+            background: var(--border);
+            border-radius: 10px;
+            height: 8px;
+            margin: 24px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-light);
+            margin-top: 8px;
+        }
+        
+        .step-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        
+        .step-tab {
+            flex: 1;
+            min-width: calc(33% - 6px);
+            padding: 10px 8px;
+            font-size: 12px;
+            text-align: center;
+            background: var(--card);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .step-tab.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+        
+        .step-tab.completed {
+            border-color: var(--success);
+            color: var(--success);
+        }
+        
+        .step-tab.completed.active {
+            background: var(--success);
+            color: white;
+        }
+        
+        .form-section {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 24px 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--primary);
+            display: inline-block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+        
+        .form-group label .optional {
+            font-size: 12px;
+            color: var(--text-light);
+            font-weight: normal;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            background: var(--bg);
+            color: var(--text);
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-group .hint {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 6px;
+            line-height: 1.5;
+        }
+        
+        .form-group .hint-box {
+            background: #fff9f0;
+            border: 1px solid var(--warning);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 8px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--text);
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .radio-item {
+            flex: 1;
+            min-width: 80px;
+        }
+        
+        .radio-item input {
+            display: none;
+        }
+        
+        .radio-item label {
+            display: block;
+            padding: 12px 16px;
+            text-align: center;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: normal;
+        }
+        
+        .radio-item input:checked + label {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 16px 24px;
+            font-size: 16px;
+            font-weight: 500;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+        
+        .btn-secondary {
+            background: var(--bg);
+            color: var(--text);
+            border: 2px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--primary);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #75a78c;
+        }
+        
+        .btn-full {
+            width: 100%;
+        }
+        
+        .footer-actions {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card);
+            padding: 16px 20px;
+            box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
+            display: flex;
+            gap: 12px;
+            z-index: 100;
+        }
+        
+        .footer-actions .btn {
+            flex: 1;
+        }
+        
+        .save-hint {
+            font-size: 12px;
+            color: var(--success);
+            text-align: center;
+            margin-top: 8px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 32px 24px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .modal-content h3 {
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+        
+        .modal-content p {
+            color: var(--text-light);
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+        
+        .modal-content .icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        @media (max-width: 400px) {
+            .step-tab {
+                font-size: 11px;
+                padding: 8px 6px;
+            }
+            
+            .header h1 {
+                font-size: 20px;
+            }
+            
+            .form-section {
+                padding: 20px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>欢迎使用粒粒的吃较瘦会员服务</h1>
+            <div class="subtitle">
+                如果你想获得吃较瘦的服务/或先咨询，可以加粒粒微信 <strong>LL_CHI_0916</strong>；<br>
+                如果不想加微信，可将此问卷当做肥胖成因自测
+            </div>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+        <div class="progress-text" id="progressText">已完成 0%</div>
+        
+        <div class="step-tabs" id="stepTabs"></div>
+        
+        <form id="surveyForm">
+            <div id="formContent"></div>
+        </form>
+    </div>
+    
+    <div class="footer-actions" id="footerActions">
+        <button type="button" class="btn btn-secondary" id="prevBtn" onclick="prevStep()">上一步</button>
+        <button type="button" class="btn btn-primary" id="nextBtn" onclick="nextStep()">下一步</button>
+    </div>
+    
+    <div class="modal" id="successModal">
+        <div class="modal-content">
+            <div class="icon">🎉</div>
+            <h3>问卷已完成！</h3>
+            <p>文件已生成，请发送给粒粒<br>微信：LL_CHI_0916</p>
+            <button class="btn btn-success btn-full" onclick="closeModal()">完成</button>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'health_survey_data';
+        
+        const steps = [
+            {
+                id: 'basic',
+                title: '基础信息',
+                fields: [
+                    { id: 'nickname', label: '昵称', type: 'text' },
+                    { id: 'gender', label: '性别', type: 'radio', options: ['男', '女'] },
+                    { id: 'hometown', label: '籍贯及现居城市', type: 'text' },
+                    { id: 'age', label: '年龄', type: 'text' },
+                    { id: 'height', label: '身高（cm）', type: 'text' },
+                    { id: 'weight', label: '体重（kg）', type: 'text' },
+                    { id: 'bodyFat', label: '体脂率', type: 'text', optional: true, hint: '不确定也没关系，照片可以估算' },
+                    { id: 'waist', label: '腰围（cm）', type: 'text' },
+                    { id: 'hip', label: '臀围（cm）', type: 'text' },
+                    { id: 'upperArm', label: '上臂围（cm）', type: 'text' },
+                    { id: 'thigh', label: '大腿围（cm）', type: 'text' },
+                    { id: 'targetWeight', label: '目标体重（kg）', type: 'text' }
+                ]
+            },
+            {
+                id: 'health',
+                title: '身体健康状况',
+                fields: [
+                    { 
+                        id: 'diseases', 
+                        label: '请如实告知是否有血压、血糖、血脂、血尿酸、肝肾、甲状腺或骨骼疾病', 
+                        type: 'textarea',
+                        hint: '没有请填无',
+                        hintBox: '请务必重视此项，因为血糖/血脂/血尿酸/肝肾疾病/消化道疾病等对应的饮食建议存在冲突，为避免方案执行后效果不佳，请务必确保手头有一年内的体检/血生化等数据，如果没有，请就近去医院/社区医院至少抽血做一个"血生化"，并提交数据给客服，没有这些数据，客服只能根据提交的生活习惯信息推测危险指标制作方案，这可能影响健康管理的效果。'
+                    }
+                ]
+            },
+            {
+                id: 'lifestyle',
+                title: '生活习惯',
+                fields: [
+                    { id: 'schedule', label: '作息时间是否规律', type: 'textarea', hint: '尽量详细描述起床、日间休息、入睡时间及平均睡眠时长' },
+                    { id: 'breakfast', label: '早餐时间与早餐内容', type: 'textarea', hint: '说说早上会习惯选择的食物' },
+                    { id: 'lunch', label: '午餐时间与午餐内容', type: 'textarea', hint: '说说中午会习惯选择的食物' },
+                    { id: 'dinner', label: '晚餐时间与晚餐内容', type: 'textarea', hint: '说说晚上会习惯选择的食物' },
+                    { id: 'snacks', label: '加餐和零食部分', type: 'textarea', hint: '任意三餐之外的时间内吃、喝的东西都写进来，包括夜宵' },
+                    { id: 'fullness', label: '三餐吃饱程度', type: 'textarea', hint: '三分/五分/七分/吃饱/吃撑，或者文字描述' },
+                    { id: 'stressEat', label: '压力很大精神紧张的时候你选择吃/喝什么', type: 'textarea' },
+                    { id: 'eatSpeed', label: '吃饭速度', type: 'textarea', hint: '平均几分钟吃完一顿饭，聚餐那种不算' },
+                    { id: 'water', label: '每天水量', type: 'textarea', hint: '500/1000/1500/2000/2000+，或者文字描述' }
+                ]
+            },
+            {
+                id: 'diet',
+                title: '饮食偏好',
+                fields: [
+                    { id: 'homeFood', label: '在家吃饭最喜欢吃的菜', type: 'textarea', hint: '请用报菜名的形式尽情写' },
+                    { id: 'takeoutFood', label: '点外卖最喜欢点的菜', type: 'textarea', hint: '请用报菜名的形式尽情写' },
+                    { id: 'drinkSnack', label: '如果喝酒，那最爱的下酒菜是什么？', type: 'textarea', hint: '请用报菜名的形式尽情写，下馆子和独自小酌都算' },
+                    { id: 'drinkFreq', label: '你喝酒频率如何？', type: 'textarea', hint: '不妨详细说说喜欢喝哪些酒，酒量如何，不喝请忽略' },
+                    { id: 'convenience', label: '便利店解决时选择吃什么', type: 'textarea', hint: '只能去便利店买点东西垫吧一下的话，经常会买什么' },
+                    { id: 'specialty', label: '你是否有拿手菜', type: 'textarea', hint: '没有请忽略，有请尽情写', optional: true },
+                    { id: 'fruit', label: '最爱吃的水果有哪些', type: 'textarea', hint: '一次性能吃多少' },
+                    { id: 'staple', label: '最爱吃的主食是哪种', type: 'textarea', hint: '一顿能吃多少' },
+                    { id: 'meat', label: '最爱吃的肉是哪些', type: 'textarea', hint: '多久吃一次，一顿能吃多少' },
+                    { id: 'avoid', label: '你从不吃的、过敏的食物有哪些', type: 'textarea' }
+                ]
+            },
+            {
+                id: 'bowel',
+                title: '排便情况',
+                fields: [
+                    { id: 'bowelMovement', label: '排便是否顺畅', type: 'textarea', hint: '多久一次' },
+                    { id: 'bowelHelp', label: '是否需要借助药物/保健品辅助排便', type: 'textarea' }
+                ]
+            },
+            {
+                id: 'other',
+                title: '天人交战的问题',
+                fields: [
+                    { id: 'whenFat', label: '你从什么时候觉得自己算"胖了"', type: 'textarea', hint: '那时候体重大概多少' },
+                    { id: 'firstGain', label: '你从小到大第一次体重激增是几岁', type: 'text' },
+                    { id: 'pastDiet', label: '以前是否减过肥', type: 'textarea', hint: '用的什么方法？维持了多长时间？反弹成什么样' },
+                    { id: 'bestDiet', label: '你最满意的一次减肥使用了什么方法？', type: 'textarea', hint: '要尽量不易反弹的哦，喝三天水减十斤那种不算"减肥"，算"玩儿命"' },
+                    { id: 'reason', label: '可以说一下导致这次发胖或者促使你来找我的原因', type: 'textarea' },
+                    { id: 'notes', label: '对于这次减肥，你是否有什么特别需要叮嘱我们注意的你"在意的事情"？', type: 'textarea', hint: '或者说说这个表格没有涉及到的其他重要事情' },
+                    { id: 'unacceptable', label: '你在接受帮助的时候不能接受的词汇/态度是什么', type: 'textarea' },
+                    { id: 'canFollow', label: '能否尽量确保按照方案操作？', type: 'textarea', hint: '可以说说现实阻力（工作、家人）' }
+                ]
+            }
+        ];
+        
+        let currentStep = 0;
+        let formData = {};
+        
+        function init() {
+            loadFromStorage();
+            renderStepTabs();
+            renderForm();
+            updateProgress();
+            updateButtons();
+        }
+        
+        function loadFromStorage() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    formData = data.formData || {};
+                    currentStep = data.currentStep || 0;
+                } catch (e) {
+                    formData = {};
+                }
+            }
+        }
+        
+        function saveToStorage() {
+            const data = {
+                formData: formData,
+                currentStep: currentStep,
+                savedAt: new Date().toISOString()
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+        
+        function renderStepTabs() {
+            const container = document.getElementById('stepTabs');
+            container.innerHTML = steps.map((step, index) => {
+                const isCompleted = isStepCompleted(index);
+                const isActive = index === currentStep;
+                let classes = 'step-tab';
+                if (isActive) classes += ' active';
+                if (isCompleted && !isActive) classes += ' completed';
+                return `<div class="${classes}" onclick="goToStep(${index})">${step.title}</div>`;
+            }).join('');
+        }
+        
+        function isStepCompleted(stepIndex) {
+            const step = steps[stepIndex];
+            return step.fields.every(field => {
+                const value = formData[field.id];
+                if (field.optional) return true;
+                return value && value.trim() !== '';
+            });
+        }
+        
+        function renderForm() {
+            const step = steps[currentStep];
+            const container = document.getElementById('formContent');
+            
+            let html = `<div class="form-section">
+                <div class="section-title">${step.title}</div>`;
+            
+            step.fields.forEach(field => {
+                html += renderField(field);
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+            
+            container.querySelectorAll('input, textarea, select').forEach(el => {
+                el.addEventListener('input', (e) => {
+                    formData[e.target.name] = e.target.value;
+                    saveToStorage();
+                    updateProgress();
+                    renderStepTabs();
+                });
+                
+                el.addEventListener('change', (e) => {
+                    formData[e.target.name] = e.target.value;
+                    saveToStorage();
+                    updateProgress();
+                    renderStepTabs();
+                });
+            });
+        }
+        
+        function renderField(field) {
+            const value = formData[field.id] || '';
+            let html = `<div class="form-group">
+                <label>${field.label}${field.optional ? '<span class="optional">（可选）</span>' : ''}</label>`;
+            
+            if (field.type === 'text') {
+                html += `<input type="text" name="${field.id}" value="${escapeHtml(value)}" placeholder="请输入">`;
+            } else if (field.type === 'textarea') {
+                html += `<textarea name="${field.id}" placeholder="请输入">${escapeHtml(value)}</textarea>`;
+            } else if (field.type === 'radio') {
+                html += '<div class="radio-group">';
+                field.options.forEach(opt => {
+                    const checked = value === opt ? 'checked' : '';
+                    html += `<div class="radio-item">
+                        <input type="radio" name="${field.id}" id="${field.id}_${opt}" value="${opt}" ${checked}>
+                        <label for="${field.id}_${opt}">${opt}</label>
+                    </div>`;
+                });
+                html += '</div>';
+            }
+            
+            if (field.hint) {
+                html += `<div class="hint">${field.hint}</div>`;
+            }
+            
+            if (field.hintBox) {
+                html += `<div class="hint-box">⚠️ ${field.hintBox}</div>`;
+            }
+            
+            html += '</div>';
+            return html;
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function updateProgress() {
+            let totalFields = 0;
+            let filledFields = 0;
+            
+            steps.forEach(step => {
+                step.fields.forEach(field => {
+                    if (!field.optional) {
+                        totalFields++;
+                        if (formData[field.id] && formData[field.id].trim() !== '') {
+                            filledFields++;
+                        }
+                    }
+                });
+            });
+            
+            const percent = totalFields > 0 ? Math.round((filledFields / totalFields) * 100) : 0;
+            document.getElementById('progressFill').style.width = percent + '%';
+            document.getElementById('progressText').textContent = `已完成 ${percent}%`;
+        }
+        
+        function updateButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (currentStep === 0) {
+                prevBtn.style.display = 'none';
+            } else {
+                prevBtn.style.display = 'block';
+            }
+            
+            if (currentStep === steps.length - 1) {
+                nextBtn.textContent = '生成报告';
+                nextBtn.className = 'btn btn-success';
+            } else {
+                nextBtn.textContent = '下一步';
+                nextBtn.className = 'btn btn-primary';
+            }
+        }
+        
+        function goToStep(index) {
+            currentStep = index;
+            saveToStorage();
+            renderForm();
+            renderStepTabs();
+            updateButtons();
+            window.scrollTo(0, 0);
+        }
+        
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                saveToStorage();
+                renderForm();
+                renderStepTabs();
+                updateButtons();
+                window.scrollTo(0, 0);
+            }
+        }
+        
+        function nextStep() {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                saveToStorage();
+                renderForm();
+                renderStepTabs();
+                updateButtons();
+                window.scrollTo(0, 0);
+            } else {
+                generateReport();
+            }
+        }
+        
+        function generateReport() {
+            const now = new Date();
+            const dateStr = now.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            let md = `# 健康信息调查表\n\n`;
+            md += `**填写时间**：${dateStr}\n\n---\n\n`;
+            
+            steps.forEach(step => {
+                md += `## ${step.title}\n\n`;
+                
+                if (step.id === 'basic') {
+                    md += `| 项目 | 内容 |\n|------|------|\n`;
+                    step.fields.forEach(field => {
+                        const value = formData[field.id] || '未填写';
+                        md += `| ${field.label.replace(/（.*）/, '')} | ${value} |\n`;
+                    });
+                } else {
+                    step.fields.forEach(field => {
+                        const value = formData[field.id] || '未填写';
+                        md += `**${field.label}**\n\n${value}\n\n`;
+                    });
+                }
+                
+                md += `---\n\n`;
+            });
+            
+            md += `*本报告由健康调查工具生成*\n`;
+            
+            const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            
+            const nickname = formData.nickname || '用户';
+            const filename = `健康调查表_${nickname}_${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}.md`;
+            a.download = filename;
+            
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            document.getElementById('successModal').classList.add('show');
+        }
+        
+        function closeModal() {
+            document.getElementById('successModal').classList.remove('show');
+        }
+        
+        function clearData() {
+            if (confirm('确定要清除所有已填写的数据吗？此操作不可恢复。')) {
+                localStorage.removeItem(STORAGE_KEY);
+                formData = {};
+                currentStep = 0;
+                renderForm();
+                renderStepTabs();
+                updateProgress();
+                updateButtons();
+            }
+        }
+        
+        init();
+    </script>
+</body>
+</html>
