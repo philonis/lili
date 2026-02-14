@@ -401,7 +401,7 @@
         <div class="modal-content">
             <div class="icon">🎉</div>
             <h3>问卷已完成！</h3>
-            <p>文件已生成，请发送给粒粒<br>微信：<a href="weixin://addfriend/LL_CHI_2128" style="color: var(--primary-dark); font-weight: bold; text-decoration: none; cursor: pointer;">LL_CHI_0916</a></p>
+            <p>文件已生成，请发送给粒粒<br>微信：<a href="weixin://addfriend/LL_CHI_2128" style="color: var(--primary-dark); font-weight: bold; text-decoration: none; cursor: pointer;">LL_CHI_2128</a></p>
             <button class="btn btn-success btn-full" onclick="closeModal()">完成</button>
         </div>
     </div>
@@ -739,37 +739,59 @@
             
             md += `*本报告由健康调查工具生成*\n`;
             
-            const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
+            // 检测是否在微信浏览器中
+            const isWechat = /MicroMessenger/i.test(navigator.userAgent);
             
-            const nickname = formData.nickname || '用户';
-            const filename = `健康调查表_${nickname}_${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}.md`;
-            
-            // 检查是否支持Web Share API
-            if (navigator.share) {
-                // 创建文件对象
-                const file = new File([md], filename, { type: 'text/markdown' });
-                
-                // 尝试使用Web Share API分享文件
-                navigator.share({
-                    title: '健康信息调查表',
-                    text: '请查收我的健康信息调查表',
-                    files: [file]
-                }).then(() => {
-                    console.log('分享成功');
+            if (isWechat) {
+                // 在微信浏览器中，使用复制到剪贴板的方式
+                navigator.clipboard.writeText(md).then(() => {
                     // 显示成功提示
                     const successModal = document.getElementById('successModal');
                     successModal.querySelector('h3').textContent = '问卷已完成！';
-                    successModal.querySelector('p').innerHTML = '请选择微信或其他应用发送给粒粒<br>微信：<a href="weixin://addfriend/LL_CHI_0916" style="color: var(--primary-dark); font-weight: bold; text-decoration: none; cursor: pointer;">LL_CHI_0916</a>';
+                    successModal.querySelector('p').innerHTML = '内容已复制到剪贴板，请发送给粒粒<br>微信：<a href="weixin://addfriend/LL_CHI_2128" style="color: var(--primary-dark); font-weight: bold; text-decoration: none; cursor: pointer;">LL_CHI_2128</a>';
                     successModal.classList.add('show');
                 }).catch(err => {
-                    console.error('分享失败:', err);
-                    // 分享失败时，使用传统下载方式
-                    downloadFile(url, filename);
+                    console.error('复制失败:', err);
+                    // 复制失败时，显示提示让用户手动操作
+                    const successModal = document.getElementById('successModal');
+                    successModal.querySelector('h3').textContent = '问卷已完成！';
+                    successModal.querySelector('p').innerHTML = '请手动打开微信发送给粒粒<br>微信：<a href="weixin://addfriend/LL_CHI_2128" style="color: var(--primary-dark); font-weight: bold; text-decoration: none; cursor: pointer;">LL_CHI_2128</a>';
+                    successModal.classList.add('show');
                 });
             } else {
-                // 不支持Web Share API时，使用传统下载方式
-                downloadFile(url, filename);
+                // 不在微信浏览器中，使用原来的方式
+                const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                
+                const nickname = formData.nickname || '用户';
+                const filename = `健康调查表_${nickname}_${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}.md`;
+                
+                // 检查是否支持Web Share API
+                if (navigator.share) {
+                    // 创建文件对象
+                    const file = new File([md], filename, { type: 'text/markdown' });
+                    
+                    // 尝试使用Web Share API分享文件
+                    navigator.share({
+                        title: '健康信息调查表',
+                        text: '请查收我的健康信息调查表',
+                        files: [file]
+                    }).then(() => {
+                        console.log('分享成功');
+                        // 显示成功提示
+                        const successModal = document.getElementById('successModal');
+                        successModal.querySelector('h3').textContent = '问卷已完成！';
+                        successModal.querySelector('p').innerHTML = '请选择微信或其他应用发送给粒粒<br>微信：<a href="weixin://addfriend/LL_CHI_2128" style="color: var(--primary-dark); font-weight: bold; text-decoration: none; cursor: pointer;">LL_CHI_2128</a>';
+                        successModal.classList.add('show');
+                    }).catch(err => {
+                        console.error('分享失败:', err);
+                        // 分享失败时，使用传统下载方式
+                        downloadFile(url, filename);
+                    });
+                } else {
+                    // 不支持Web Share API时，使用传统下载方式
+                    downloadFile(url, filename);
+                }
             }
         }
         
