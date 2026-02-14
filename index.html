@@ -283,7 +283,7 @@
         }
         
         .footer-actions {
-            position: fixed;
+            position: sticky;
             bottom: 0;
             left: 0;
             right: 0;
@@ -293,6 +293,7 @@
             display: flex;
             gap: 12px;
             z-index: 100;
+            margin-top: 20px;
         }
         
         .footer-actions .btn {
@@ -374,7 +375,7 @@
         <div class="header">
             <h1>欢迎使用粒粒的吃较瘦会员服务</h1>
             <div class="subtitle">
-                如果你想获得吃较瘦的服务/或先咨询，可以加粒粒微信 <strong>LL_CHI_0916</strong>；<br>
+                如果你想获得吃较瘦的服务/或先咨询，可以加粒粒微信 <a href="weixin://addfriend/LL_CHI_0916" style="color: var(--primary-dark); font-weight: bold; text-decoration: none; cursor: pointer;">LL_CHI_0916</a>；<br>
                 如果不想加微信，可将此问卷当做肥胖成因自测
             </div>
         </div>
@@ -400,7 +401,7 @@
         <div class="modal-content">
             <div class="icon">🎉</div>
             <h3>问卷已完成！</h3>
-            <p>文件已生成，请发送给粒粒<br>微信：LL_CHI_0916</p>
+            <p>文件已生成，请发送给粒粒<br>微信：<a href="weixin://addfriend/LL_CHI_0916" style="color: var(--primary-dark); font-weight: bold; text-decoration: none; cursor: pointer;">LL_CHI_0916</a></p>
             <button class="btn btn-success btn-full" onclick="closeModal()">完成</button>
         </div>
     </div>
@@ -702,45 +703,43 @@
                 minute: '2-digit'
             });
             
-            let md = `# 健康信息调查表\n\n`;
-            md += `**填写时间**：${dateStr}\n\n---\n\n`;
+            let content = `健康信息调查表\n填写时间：${dateStr}\n\n`;
             
             steps.forEach(step => {
-                md += `## ${step.title}\n\n`;
+                content += `${step.title}\n`;
                 
                 if (step.id === 'basic') {
-                    md += `| 项目 | 内容 |\n|------|------|\n`;
                     step.fields.forEach(field => {
                         const value = formData[field.id] || '未填写';
-                        md += `| ${field.label.replace(/（.*）/, '')} | ${value} |\n`;
+                        content += `${field.label.replace(/（.*）/, '')}：${value}\n`;
                     });
                 } else {
                     step.fields.forEach(field => {
                         const value = formData[field.id] || '未填写';
-                        md += `**${field.label}**\n\n${value}\n\n`;
+                        content += `${field.label}：${value}\n`;
                     });
                 }
                 
-                md += `---\n\n`;
+                content += '\n';
             });
             
-            md += `*本报告由健康调查工具生成*\n`;
+            content += '本报告由健康调查工具生成';
             
-            const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            
-            const nickname = formData.nickname || '用户';
-            const filename = `健康调查表_${nickname}_${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}.md`;
-            a.download = filename;
-            
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            document.getElementById('successModal').classList.add('show');
+            // 复制内容到剪贴板
+            navigator.clipboard.writeText(content).then(() => {
+                // 显示成功模态框，提示用户打开微信发送
+                const successModal = document.getElementById('successModal');
+                successModal.querySelector('h3').textContent = '问卷已完成！';
+                successModal.querySelector('p').innerHTML = '内容已复制到剪贴板，请打开微信发送给粒粒<br>微信：<a href="weixin://addfriend/LL_CHI_0916" style="color: var(--primary-dark); font-weight: bold; text-decoration: none; cursor: pointer;">LL_CHI_0916</a>';
+                successModal.classList.add('show');
+            }).catch(err => {
+                console.error('复制失败:', err);
+                // 复制失败时显示提示
+                const successModal = document.getElementById('successModal');
+                successModal.querySelector('h3').textContent = '问卷已完成！';
+                successModal.querySelector('p').innerHTML = '请手动打开微信发送给粒粒<br>微信：<a href="weixin://addfriend/LL_CHI_0916" style="color: var(--primary-dark); font-weight: bold; text-decoration: none; cursor: pointer;">LL_CHI_0916</a>';
+                successModal.classList.add('show');
+            });
         }
         
         function closeModal() {
